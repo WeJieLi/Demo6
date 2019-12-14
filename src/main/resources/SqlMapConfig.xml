@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--加载外部配置 -->
+<!--    <properties resource="jdbc_mysql.properties"></properties>-->
+    <!--配置别名：<typeAlias type="pojo.Book" alias="book"/> 给某个对象去别名 -->
+    <typeAliases>
+        <package name="com.great.springboot.entity" /><!--这是给entity包下所有类取别名，在用完全限定命名的情况下可以通过类名直接调用，在这不区分大小写 -->
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="mapper/DeptSqlMap.xml" />
+    </mappers>
+</configuration>

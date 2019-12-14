@@ -1,0 +1,151 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    color:  #029789;
+}
+div{
+    box-sizing: border-box;
+}
+a{
+    color:  #029789;
+    text-decoration: none;
+}
+body{
+    height: 100%;
+}
+#head{
+    background-color: #2a2f0b;
+    height: 15%;
+}
+ #page-title{
+    color:  #029789;
+     text-indent: 4em;
+    height: 100%;
+    width: 75%;
+    padding-top: 20px;
+    float: left;
+}
+#phone{
+    float: right;
+    color:  #029789;
+    height: 100%;
+    width: 10%;
+    padding-top: 60px;
+    padding-left: 25px;
+}
+#user-name-label{
+    float: right;
+    color:  #029789;
+    height: 100%;
+    width: 15%;
+    padding-top: 60px;
+    padding-left: 25px;
+}
+
+
+#user-name-label a:hover{
+    color: cyan;
+}
+#aside{
+    background-color: #2a2f0b;
+    border-top-color: #029789;
+    border-top-width: 1px;
+    border-top-style: solid;
+    height: 90%;
+    width: 25%;
+    float: left;
+    box-sizing: border-box;
+}
+
+#aside h2{
+    text-indent: 1em;
+    border-left-color:#029789;
+    border-left-style: solid;
+    border-left-width:8px ;
+
+    border-bottom-color: #029789;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+
+    border-top-color: #029789;
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+#aside ul{
+    font-size: 23px;
+    list-style: none;
+}
+#aside ul li{
+    text-indent: 4em;
+ }
+#aside ul li a:hover{
+    color: #e8e8e8;
+    background-color: #029789;
+    display: block;
+}
+#section{
+    background-color:  #e8e8e8;
+    height: 90%;
+    width: 75%;
+    float: right;
+}
+
+#myiframe{
+    width: 100%;
+    height: 100%;
+}
+
+.field {
+    width: 150px;
+    height: 30px;
+    color: #888888;
+}
+
+.search_panel_info {
+    font-size: 14px;
+    color: #888888;
+    height: 35px;
+}
+
+.btn {
+    width: 90px;
+    height: 30px;
+    border: 1px solid #60707F;
+    color: #60707F;
+    background-color: white;
+}
+
+.close{
+    display: none;
+}
+.open{
+    display: block;
+}
+
+
+/* 弹窗 (background) */
+.modal22{
+    display: none; /* 默认隐藏 */
+    position: fixed; /* 固定定位 */
+    z-index: 1; /* 设置在顶层 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height:100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+/* 弹窗内容 */
+.modal-content22 {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 10px;
+    border: 1px solid #888;
+    width: 35%;
+    height: 50%;
+
+}
+

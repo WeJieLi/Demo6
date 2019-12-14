@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.great.springboot.dao.DeptMapper">
+
+
+    <select id="Login" resultType="map">
+       SELECT * FROM  TBL_ADMIN WHERE ADMIN_NUM=#{admin} AND ADMIN_PASS=#{pass}
+    </select>
+
+
+    <select id="UserLogin" resultType="map">
+       SELECT * FROM  tbl_user WHERE USERNUM=#{username} AND PASS=#{pass}
+    </select>
+
+    <!--    插入日志表-->
+    <insert id="addLog" parameterType="LogInf">
+        INSERT INTO
+        tbl_log (LOG_OPERATE,LOG_AFFAIR,LOG_DATE,LOG_TIME,LOG_OBJECT,LOG_SCORE_CHANGE,LOG_SCORE)
+        values (#{operate},#{affair},#{date},#{time},#{object},#{change},#{score})
+    </insert>
+
+    <!--菜单-->
+    <!--    <select id="selectMenu" resultType="MenuInf">-->
+    <!--        SELECT A.MENU_NAME MENU1NAME,B.MENU_NAME MENU2NAME,B.MENU_URL MENUURL-->
+    <!--        FROM  TBL_MENU A,TBL_MENU B,tbl_admin C,tbl_role D,tbl_relation1 E,tbl_relation2 F-->
+    <!--        WHERE A.MENU_ID=B.MENU_FROM-->
+    <!--        AND A.MENU_ID=F.MENU_ID-->
+    <!--        AND D.ROLE_ID=F.ROLE_ID-->
+    <!--        AND D.ROLE_ID=E.ROLE_ID-->
+    <!--        AND C.ADMIN_ID=E.ADMIN_ID-->
+    <!--        AND C.ADMIN_NUM=#{admin}-->
+    <!--    </select>-->
+    <!--菜单-->
+    <select id="selectMenu" resultType="MenuInf">
+        SELECT A.MENU_NAME MENU1NAME,B.MENU_NAME MENU2NAME,B.MENU_URL MENUURL
+        FROM  (		SELECT A.*
+        FROM  TBL_MENU A,tbl_admin B,tbl_role C,tbl_relation1 D,tbl_relation2 E
+        WHERE A.MENU_ID=E.MENU_ID
+        AND C.ROLE_ID=E.ROLE_ID
+        AND C.ROLE_ID=D.ROLE_ID
+        AND B.ADMIN_ID=D.ADMIN_ID
+        AND B.ADMIN_NUM=#{admin}
+        ) A,(		SELECT A.*
+        FROM  TBL_MENU A,tbl_admin B,tbl_role C,tbl_relation1 D,tbl_relation2 E
+        WHERE A.MENU_ID=E.MENU_ID
+        AND C.ROLE_ID=E.ROLE_ID
+        AND C.ROLE_ID=D.ROLE_ID
+        AND B.ADMIN_ID=D.ADMIN_ID
+        AND B.ADMIN_NUM=#{admin}
+        ) B
+        WHERE A.MENU_ID=B.MENU_FROM
+
+
+    </select>
+
+    <resultMap id="treeMap" type="MenuInf">
+        <result column="MENU_ID" property="MENUID"></result>
+        <result column="MENU_NAME" property="MENU1NAME"></result>
+        <result column="MENU_URL" property="MENUURL"></result>
+        <result column="MENU_FROM" property="MENUFROM"></result>
+    </resultMap>
+
+    <!--树形组件一级菜单-->
+    <select id="selectFirstMenu" resultMap="treeMap">
+        SELECT *
+        FROM  TBL_MENU
+        WHERE MENU_FROM ='0';
+
+    </select>
+
+    <!--树形组件子菜单-->
+    <select id="selectChildMenu" resultMap="treeMap">
+        SELECT *
+        FROM  TBL_MENU
+        WHERE MENU_FROM =#{menuid};
+
+    </select>
+    <!--树形组件一级菜单-->
+    <select id="selectTreeParent" resultMap="treeMap">
+
+        SELECT A.*
+        FROM  (		SELECT A.*
+        FROM  TBL_MENU A,tbl_admin B,tbl_role C,tbl_relation1 D,tbl_relation2 E
+        WHERE A.MENU_ID=E.MENU_ID
+        AND C.ROLE_ID=E.ROLE_ID
+        AND C.ROLE_ID=D.ROLE_ID
+        AND B.ADMIN_ID=D.ADMIN_ID
+        AND B.ADMIN_NUM=#{admin}
+        )A
+        WHERE MENU_FROM ='0';
+    </select>
+
+    <!--树形组件子菜单-->
+    <select id="selectTreeChild" resultMap="treeMap">
+        SELECT A.*
+        FROM  (		SELECT A.*
+        FROM  TBL_MENU A,tbl_admin B,tbl_role C,tbl_relation1 D,tbl_relation2 E
+        WHERE A.MENU_ID=E.MENU_ID
+        AND C.ROLE_ID=E.ROLE_ID
+        AND C.ROLE_ID=D.ROLE_ID
+        AND B.ADMIN_ID=D.ADMIN_ID
+        AND B.ADMIN_NUM=#{admin}
+        )A
+        WHERE MENU_FROM =#{menuid};
+    </select>
+
+
+    <!--    用户管理-->
+    <select id="queryUser" resultType="User">
+        SELECT A.* FROM(SELECT * FROM TBL_USER ORDER BY USERID) A
+        <where>
+            <if test=" name!=null and name.length>0 ">
+                AND A.USERNAME LIKE "%" #{name} "%"
+            </if>
+            <if test=" date1!=null and date1.length>0 and date2!=null and date2.length>0">
+                AND A.REGISTERDATE BETWEEN #{date1} AND #{date2}
+            </if>
+        </where>
+        <if test=" start!=null and pageSize!=null">
+            LIMIT #{start},#{pageSize}
+        </if>
+    </select>
+
+    <!--删除用户-->
+    <delete id="deleteUser">
+        delete from TBL_USER where USERID =#{userId}
+    </delete>
+
+
+    <!--添加用户-->
+    <insert id="addUser" parameterType="User">
+        INSERT INTO
+        tbl_user (USERNUM,USERNAME,PASS,SCORE,STATE,REGISTERDATE,UPLOADNUM,DOWNLOADNUM)
+        values (#{userNum},#{userName},#{pass},#{score},#{state},#{registerDate},#{uploadNum},#{downloadNum})
+    </insert>
+
+    <!--    用户表统计-->
+    <select id="queryUserCount" resultType="integer">
+        SELECT COUNT(*) FROM tbl_user A
+        <where>
+            <if test=" name!=null and name.length>0 ">
+                AND A.USERNAME LIKE "%" #{name} "%"
+            </if>
+            <if test=" date1!=null and date1.length>0 and date2!=null and date2.length>0">
+                AND A.REGISTERDATE BETWEEN #{date1} AND #{date2}
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="LogMap" type="LogInf">
+        <result column="LOG_ID" property="ID"></result>
+        <result column="LOG_OPERATE" property="operate"></result>
+        <result column="LOG_AFFAIR" property="affair"></result>
+        <result column="LOG_DATE" property="date"></result>
+        <result column="LOG_TIME" property="time"></result>
+        <result column="LOG_SCORE_CHANGE" property="change"></result>
+        <result column="LOG_SCORE" property="score"></result>
+        <result column="LOG_OBJECT" property="object"></result>
+    </resultMap>
+    <!--    日志管理-->
+    <select id="queryLog" resultMap="LogMap">
+        SELECT A.* FROM(SELECT * FROM tbl_log ORDER BY LOG_ID DESC) A
+        <where>
+            <if test=" name!=null and name.length>0 ">
+                AND A.LOG_OPERATE LIKE "%" #{name} "%"
+            </if>
+            <if test=" date1!=null and date1.length>0 and date2!=null and date2.length>0">
+                AND A.LOG_DATE BETWEEN #{date1} AND #{date2}
+            </if>
+        </where>
+        <if test=" start!=null and pageSize!=null">
+            LIMIT #{start},#{pageSize}
+        </if>
+    </select>
+
+    <!--    日志表统计-->
+    <select id="queryLogCount" resultType="integer">
+        SELECT COUNT(*) FROM tbl_log A
+        <where>
+            <if test=" name!=null and name.length>0 ">
+                AND A.LOG_OPERATE LIKE "%" #{name} "%"
+            </if>
+            <if test=" date1!=null and date1.length>0 and date2!=null and date2.length>0">
+                AND A.LOG_DATE BETWEEN #{date1} AND #{date2}
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="AdminMap" type="Admin">
+        <result column="ADMIN_NUM" property="admin"></result>
+        <result column="ADMIN_NAME" property="name"></result>
+        <result column="ADMIN_PASS" property="password"></result>
+        <result column="ADMIN_SEX" property="sex"></result>
+        <result column="ADD_TIME" property="addTime"></result>
+        <result column="ADMIN_STATE" property="state"></result>
+        <result column="ROLE_NAME" property="role"></result>
+    </resultMap>
+
+    <!--    管理员管理-->
+    <select id="queryAdmin" resultMap="AdminMap">
+        SELECT A.*,B.ROLE_NAME FROM tbl_admin A,tbl_role B,tbl_relation1 C
+        <where>
+            AND A.ADMIN_ID=C.ADMIN_ID
+            AND C.ROLE_ID=B.ROLE_ID
+            <if test=" admin!=null and admin.length>0 ">
+                AND A.ADMIN_NUM LIKE '%${admin}%'
+            </if>
+            <if test=" name!=null and name.length>0 ">
+                AND A.ADMIN_NAME LIKE '%${name}%'
+            </if>
+            <if test=" role!=null and role.length>0 ">
+                AND B.ROLE_NAME = #{role}
+            </if>
+        </where>
+        <if test=" start!=null and pageSize!=null">
+            LIMIT #{start},#{pageSize}
+        </if>
+    </select>
+    <!--    管理员表统计-->
+    <select id="queryAdminCount" resultType="integer">
+        SELECT COUNT(*) FROM tbl_admin A,tbl_role B,tbl_relation1 C
+        <where>
+            AND A.ADMIN_ID=C.ADMIN_ID
+            AND C.ROLE_ID=B.ROLE_ID
+            <if test=" admin!=null and admin.length>0 ">
+                AND A.ADMIN_NUM LIKE '% ${admin}%'
+            </if>
+            <if test=" name!=null and name.length>0 ">
+                AND A.ADMIN_NAME LIKE '% ${name}%'
+            </if>
+            <if test=" role!=null and role.length>0 ">
+                AND B.ROLE_NAME = #{role}
+            </if>
+        </where>
+    </select>
+    <!--    插入管理员-->
+    <insert id="addAdmin">
+        INSERT INTO
+        tbl_admin(ADMIN_NUM,ADMIN_NAME,ADMIN_PASS,ADMIN_SEX,ADD_TIME,ADMIN_STATE)
+        values (#{admin},#{name},'202cb962ac59075b964b07152d234b70',#{sex},#{date},#{state})
+    </insert>
+    <!--插入管理员-权限关系表-->
+    <insert id="addAdminRole">
+        INSERT INTO tbl_relation1 (ADMIN_ID,ROLE_ID)
+        values ((SELECT ADMIN_ID FROM tbl_admin WHERE ADMIN_NUM=#{admin}),(SELECT ROLE_ID FROM tbl_role WHERE ROLE_NAME=#{rolename}))
+    </insert>
+
+    <!-- 角色查询 -->
+    <select id="queryRole" resultType="string">
+       SELECT ROLE_NAME FROM tbl_role
+
+    </select>
+    <!--    树的数据回显-->
+    <!-- 根据角色查询其对应菜单 -->
+    <select id="queryRoleTree" resultType="Map">
+        SELECT A.* FROM tbl_menu A,tbl_relation2 B,tbl_role C
+        WHERE A.MENU_ID=B.MENU_ID
+        AND B.ROLE_ID=c.ROLE_ID
+        AND C.ROLE_NAME=#{role}
+    </select>
+    <!-- 根据角色查询其对应菜单 -->
+    <select id="queryRoleTree2" resultType="Map">
+        select A.* from (SELECT A.* FROM tbl_menu A,tbl_relation2 B,tbl_role C
+        WHERE A.MENU_ID=B.MENU_ID
+        AND B.ROLE_ID=c.ROLE_ID
+        AND C.ROLE_NAME=#{role})A where MENU_FROM=#{id}
+    </select>
+
+    <!--   角色表统计-->
+    <select id="queryRoles" resultType="map">
+        SELECT * FROM tbl_role
+        <where>
+            <if test=" role!=null and role.length>0 ">
+                AND ROLE_NAME =#{role}
+            </if>
+        </where>
+        <if test=" start!=null and pageSize!=null">
+            LIMIT #{start},#{pageSize}
+        </if>
+    </select>
+
+    <!--    角色表统计-->
+    <select id="queryRolesCount" resultType="integer">
+        SELECT COUNT(*) FROM tbl_role
+        <where>
+            <if test=" role!=null and role.length>0 ">
+                AND ROLE_NAME =#{role}
+            </if>
+        </where>
+    </select>
+
+    <!--    插入角色表-->
+    <insert id="addRole">
+        INSERT INTO
+        tbl_role(ROLE_NAME,ROLE_MSG)
+        values (#{role},#{msg})
+    </insert>
+
+    <!--    角色表id查询-->
+    <select id="queryRolesID" resultType="integer">
+        SELECT ROLE_ID FROM tbl_role WHERE  ROLE_NAME =#{role}
+    </select>
+
+    <!--    插入角色-权限关系表-->
+    <insert id="addRoleMenu">
+        INSERT INTO tbl_relation2 (ROLE_ID,MENU_ID)
+        values
+        <foreach item="i" index="index" collection="menus" separator=",">
+            (#{roleID},#{i})
+        </foreach>
+    </insert>
+
+    <!--插入文档上传表-->
+    <insert id="uploadFile">
+        INSERT INTO tbl_file (FILE_TITLE,FILE_TYPE,FILE_UPLOAD_USER,FILE_UPLOAD_DATE,FILE_DOWN_SCORE,FILE_DOWN_TIMES,FILE_STATE)
+        values (#{title},#{type},#{user},#{date},#{score},0,'未审核')
+    </insert>
+
+    <!--   文档表统计-->
+    <select id="queryFile" resultType="map">
+        SELECT * FROM tbl_file
+        <where>
+            <if test=" title!=null and title.length>0 ">
+                AND FILE_TITLE like '%${title}%'
+            </if>
+            <if test=" check!=null and check.length>0 ">
+                AND FILE_STATE = '已审核'
+            </if>
+        </where>
+        ORDER BY FILE_ID DESC
+        <if test=" start!=null and pageSize!=null">
+            LIMIT #{start},#{pageSize}
+        </if>
+    </select>
+
+    <!--    文档表统计-->
+    <select id="queryFileCount" resultType="integer">
+        SELECT COUNT(*) FROM tbl_file
+        <where>
+            <if test=" title!=null and title.length>0 ">
+                AND FILE_TITLE like '%${title}%'
+            </if>
+            <if test=" check!=null and check.length>0 ">
+                AND FILE_STATE = '已审核'
+            </if>
+        </where>
+    </select>
+    <update id="changeFileState">
+        update tbl_file set FILE_STATE=#{state} where FILE_ID=#{fileID}
+
+
+    </update>
+</mapper>
